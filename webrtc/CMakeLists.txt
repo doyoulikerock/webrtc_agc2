@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.6)
 
 project(webrtc_apm)
 
+
+
 set(CMAKE_CXX_STANDARD 14)
 
 if (WIN32)
@@ -28,7 +30,14 @@ endif ()
 add_definitions(-DWEBRTC_NS_FLOAT)
 add_definitions(-DWEBRTC_APM_DEBUG_DUMP=1)
 
+message(STATUS "MYLIB_TYPE:${MYLIB_TYPE}")
 set(CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+if( NOT ${MYLIB_TYPE} )
+message(STATUS "MYLIB_TYPE:${MYLIB_TYPE}: add -fPIC.")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
+
 
 # api
 set(WEBRTC_API_DIR ${CURRENT_DIR}/api)

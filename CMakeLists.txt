@@ -3,5 +3,16 @@ project(webrtc_apm_cmake)
 
 set(CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+# if not defined, static lib is generated in default.
+set(MYLIB_TYPE SHARED)
+
 add_subdirectory(${CURRENT_DIR}/webrtc)
-add_subdirectory(${CURRENT_DIR}/test_apm)
+
+if( NOT ${MYLIB_TYPE})
+	# with shared lib
+	add_subdirectory(${CURRENT_DIR}/libmy)
+	add_subdirectory(${CURRENT_DIR}/test_my)
+else()
+	# test application with static lib
+	add_subdirectory(${CURRENT_DIR}/test_apm)
+endif()
