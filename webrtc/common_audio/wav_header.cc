@@ -334,8 +334,8 @@ bool CheckWavParameters(size_t num_channels,
     return false;
 
   // Each channel must have the same number of samples.
-  if (num_samples % num_channels != 0)
-    return false;
+  // if (num_samples % num_channels != 0)
+  //   return false;
 
   return true;
 }
@@ -421,8 +421,8 @@ bool ReadWavHeader(WavHeaderReader* readable,
                                  ? kPcmWavHeaderSize
                                  : kIeeeFloatWavHeaderSize;
 
-  if (header.riff.header.Size < RiffChunkSize(bytes_in_payload, header_size))
-    return false;
+  // if (header.riff.header.Size < RiffChunkSize(bytes_in_payload, header_size))
+  //   return false;
   if (header.fmt.ByteRate !=
       ByteRate(*num_channels, *sample_rate, *bytes_per_sample))
     return false;

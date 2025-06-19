@@ -166,6 +166,9 @@ size_t WavReader::ReadSamples(const size_t num_samples, float* const samples) {
     RTC_CHECK(num_samples_read == chunk_size || file_.ReadEof())
         << "Corrupt file: payload size does not match header.";
 
+    if(num_bytes_read == 0) 
+      break;
+
     next_chunk_start += num_samples_read;
     num_unread_samples_ -= num_samples_read;
     num_samples_left_to_read -= num_samples_read;
@@ -276,6 +279,21 @@ void WavWriter::WriteSamples(const float* samples, size_t num_samples) {
               num_samples_to_write);  // detect size_t overflow
   }
 }
+
+void WavWriter::WriteMySamples(const float* samples, size_t n_samples) 
+{
+    file_.Write(samples, n_samples*sizeof(float));
+    num_samples_written_ += n_samples;
+}
+
+void WavWriter::WriteBytes(const float* samples, size_t n_bytes) 
+{
+    file_.Write(samples, n_bytes);
+    num_samples_written_ += n_bytes/sizeof(float);
+}
+
+
+
 
 void WavWriter::Close() {
   RTC_CHECK(file_.Rewind());

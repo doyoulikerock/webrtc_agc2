@@ -59,6 +59,8 @@ class WavWriter final : public WavFile {
   // interleaved channels.
   void WriteSamples(const float* samples, size_t num_samples);
   void WriteSamples(const int16_t* samples, size_t num_samples);
+  void WriteMySamples(const float* samples, size_t num_samples);
+  void WriteBytes(const float* samples, size_t n_bytes);
 
   int sample_rate() const override { return sample_rate_; }
   size_t num_channels() const override { return num_channels_; }
@@ -97,6 +99,7 @@ class WavReader final : public WavFile {
   int sample_rate() const override { return sample_rate_; }
   size_t num_channels() const override { return num_channels_; }
   size_t num_samples() const override { return num_samples_in_file_; }
+  WavFormat sample_format() const { return format_; }
 
  private:
   void Close();

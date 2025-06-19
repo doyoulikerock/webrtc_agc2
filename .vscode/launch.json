@@ -10,8 +10,19 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/bin/test_my",
             "args": [
-				"/root/agc2.input.wav",
-				"/root/agc2.output.wav"
+				// "/root/0503-2ch-48KHz-less.wav",
+				// "/root/0503.output.wav"
+
+				//"/root/0503-test.wav",
+				// "/root/0503-test2.wav",
+				// "/root/0503.output.wav"
+
+				// "/root/agc2.input.wav",
+				// "/root/agc2.output.wav"
+
+				// float input
+				"/root/agc.in.wav",
+				"/root/agc.out.wav"
 			],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
