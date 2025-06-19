@@ -73,6 +73,9 @@ class AGC2Context
     int num_channels;
     int sample_rate;
 
+    webrtc::AudioProcessing::Config::GainController2 def_config;
+    
+
     std::unique_ptr<webrtc::AudioBuffer> audio_buffer;
     std::unique_ptr<ChannelBuffer<float>> in_buf;
     std::unique_ptr<ChannelBuffer<float>> out_buf;
@@ -83,14 +86,21 @@ class AGC2Context
 public:
     int GetChunkSize() { return samples_per_chunk; }
 
-    AGC2Context(int s_rate, int n_ch, bool subband = false)
-        : sample_rate(s_rate), num_channels(n_ch), split_bands(subband)
-
+    AGC2Context(int s_rate, int n_ch
+        , float fixed_digital_gain = 3.0f
+        , bool en_adaptive_digital = true
+        , float vad_pa = 1.0f
+        , bool subband = false)
+        : sample_rate(s_rate), num_channels(n_ch) 
+         , split_bands(subband)
+         
     {
         webrtc::AudioProcessing::Config::GainController2 config;
         config.enabled = true;
-        config.fixed_digital.gain_db = 12.0f;
-        config.adaptive_digital.enabled = true;
+        config.fixed_digital.gain_db = fixed_digital_gain;
+        config.adaptive_digital.enabled = en_adaptive_digital;
+        config.adaptive_digital.vad_probability_attack = vad_pa;
+
         // config.adaptive_digital.level_estimator =
         //     webrtc::AudioProcessing::Config::GainController2::LevelEstimator::kPeak;
 
@@ -104,7 +114,7 @@ public:
         samples_per_chunk = sample_rate / chunks_per_second;
         stream_config = webrtc::StreamConfig(sample_rate, num_channels);
         // not work for 48KHz (not implemented version?)
-        // split_bands = (sample_rate > 16000);
+        //split_bands = (sample_rate > 16000);
 
         audio_buffer = std::make_unique<webrtc::AudioBuffer>(
             samples_per_chunk, num_channels,
@@ -118,12 +128,16 @@ public:
             samples_per_chunk, num_channels);
     }
 
-    void Apply(float gain_db, bool en_adaptive_digital = true)
+    void Apply(float gain_db
+        , bool en_adaptive_digital 
+        , float vad_probability_attack
+        )
     {
         webrtc::AudioProcessing::Config::GainController2 config;
         config.enabled = true;
         config.fixed_digital.gain_db = gain_db;
         config.adaptive_digital.enabled = en_adaptive_digital;
+        config.adaptive_digital.vad_probability_attack = vad_probability_attack;
 
         gain_controller->ApplyConfig(config);
     }
@@ -440,17 +454,20 @@ void my_agc2(struct Agcinput *agc_input)
 extern "C"
 {
     void *AGC2_init(int sample_rate, int num_channels,
-                    float fixed_gain_db, bool adaptive_enable)
+                    float fixed_gain_db, bool adaptive_enable, float vad_pa)
     {
-        AGC2Context *ctx = new AGC2Context(sample_rate, num_channels);
+        AGC2Context *ctx = new AGC2Context(sample_rate, num_channels, 
+            fixed_gain_db, adaptive_enable, vad_pa);
         // ctx->Apply(fixed_gain_db, adaptive_enable);
         return ctx;
     }
 
+
+
     /// @brief
     /// @param h
     /// @param pcm_buffer : interleaved pcm buffer
-    /// @param bytes : channels * samples_in_chunk
+    /// @param bytes : 
     void AGC2_process(void *h, float *pcm_buffer, int bytes)
     {
         AGC2Context *ctx = (AGC2Context *)h;
@@ -464,27 +481,44 @@ extern "C"
 
 #endif
 
-        ctx->Run(buf);
-        //ctx->RunFloat(buf);
+        //ctx->Run(buf);
+        ctx->RunFloat(buf);
 
         //ctx->WriteOutSamples(buf.data(), buf.size());
 
         if(pcm_buffer!= buf.data())
             memcpy(pcm_buffer, buf.data(), bytes);
-
-        
     }
+
+
+
+
     void AGC2_destroy(void *h)
     {
         AGC2Context *ctx = (AGC2Context *)h;
         delete ctx;
     }
 
+
+
+
     int AGC2_GetChunkSize(void *h)
     {
         AGC2Context *ctx = (AGC2Context *)h;
         return ctx->GetChunkSize();
     }
+
+
+
+    void AGC2_Apply(void *h, float gain_db, bool en_adaptive_digital
+        , float vad_probability_attack
+        )
+    {
+        ((AGC2Context *)h)->Apply(gain_db, 
+            en_adaptive_digital, vad_probability_attack);
+    }
+
+
 
     void AGC2_NotifyAnalogLevel(void *h, int level)
     {
