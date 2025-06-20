@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
     int (*func)(int, char **);
     
     // .so 파일 로드
-    handle = dlopen("liblibmy.so", RTLD_LAZY);
+    handle = dlopen("libmywebrtc.so", RTLD_LAZY);
     if (!handle) {
         fprintf(stderr, "dlopen error: %s\n", dlerror());
         return 1;

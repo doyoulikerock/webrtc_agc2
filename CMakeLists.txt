@@ -5,8 +5,8 @@ set(CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 # if not defined, static lib is generated in default.
 set(MYLIB_TYPE SHARED)
-set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 
 add_subdirectory(${CURRENT_DIR}/webrtc)

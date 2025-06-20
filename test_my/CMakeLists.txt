@@ -13,4 +13,4 @@ add_executable(${PROJECT_NAME}
 
 link_directories(${CURRENT_DIR}/../lib)
 
-target_link_libraries(${PROJECT_NAME} libmy dl)
+target_link_libraries(${PROJECT_NAME} mywebrtc dl)
